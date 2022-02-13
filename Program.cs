@@ -4,68 +4,85 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TheFightForGondor_ExamPreparation
+namespace Super_Mario_ExamPreparation
 {
     public class Program
     {
         static void Main(string[] args)
         {
-            int numberOfWaves = int.Parse(Console.ReadLine());
+            int marioLives = int.Parse(Console.ReadLine());
+            int rows = int.Parse(Console.ReadLine());
 
-            Stack<int> plates = new Stack<int>(Console.ReadLine().Split().Select(int.Parse));
-            Stack<int> orcs = new Stack<int>();
+            char[][] matrix = new char[rows][];
 
-            for (int i = 1; i <= numberOfWaves; i++)
+            int marioCol = 0;
+            int marioRow = 0;
+
+            for (int i = 0; i < rows; i++)
             {
-                var currentWave = Console.ReadLine().Split().Select(int.Parse);
-
-                foreach (var orc in currentWave)
+                var currentRow = Console.ReadLine().ToCharArray();
+                matrix[i] = currentRow;
+                if (currentRow.Contains('M'))
                 {
-                    orcs.Push(orc);
+                    marioRow = i;
+                    marioCol = currentRow.ToList().IndexOf('M');
+                }
+                
+            }
+
+            while (true)
+            {
+                string[] tokens = Console.ReadLine().Split();
+                string command = tokens[0];
+                int enemyRow = int.Parse(tokens[1]);
+                int enemyCol = int.Parse(tokens[2]);
+
+                matrix[enemyRow][enemyCol] = 'B';
+                marioLives--;
+
+                matrix[marioRow][marioCol] = '-';
+                if (command == "W" && marioRow - 1 >= 0)
+                {
+                    marioRow--;
+                }
+                else if (command == "S" && marioRow + 1 < rows)
+                {
+                    marioRow++;
+                }
+                else if (command == "A" && marioCol - 1 >= 0)
+                {
+                    marioCol--;
+                }
+                else if (command == "D" && marioCol + 1 < matrix[0].Length)
+                {
+                    marioCol++;
                 }
 
-                if (i % 3 == 0)
+                if (matrix[marioRow][marioCol] == 'B')
                 {
-                    int plate = int.Parse(Console.ReadLine());
-                    var platesAsList = plates.ToList();
-                    platesAsList.Add(plate);
-                    platesAsList.Reverse();
-                    plates = new Stack<int>(platesAsList);
-
+                    marioLives -= 2;
                 }
-
-                while (plates.Count > 0 && orcs.Count > 0)
+                else if (matrix[marioRow][marioCol] == 'P')
                 {
-                    int currentPlate = plates.Pop();
-                    int currentOrc = orcs.Pop();
-
-                    if (currentPlate > currentOrc)
-                    {
-                        currentPlate -= currentOrc;
-                        plates.Push(currentPlate);
-                    }
-                    else if (currentPlate < currentOrc)
-                    {
-                        currentOrc -= currentPlate;
-                        orcs.Push(currentOrc);
-                    }
-                }
-
-                if (plates.Count <= 0)
-                {
+                    
+                    matrix[marioRow][marioCol] = '-';
+                    Console.WriteLine($"Mario has successfully saved the princess! Lives left: {marioLives}");
                     break;
                 }
+
+                if (marioLives <= 0)
+                {
+                    matrix[marioRow][marioCol] = 'X';
+                    Console.WriteLine($"Mario died at {marioRow};{marioCol}.");
+                    break;
+                }
+
+                matrix[marioRow][marioCol] = 'M';
             }
 
-            if (plates.Count > 0)
+            for (int i = 0; i < matrix.Length; i++)
             {
-                Console.WriteLine($"The people succesfully repulsed the orc's attack.");
-                Console.WriteLine($"Plates left: {string.Join(", ", plates)}");
-            }
-            else
-            {
-                Console.WriteLine($"The orcs successfully destroyed the Gondor's defense.");
-                Console.WriteLine($"Orcs left: {string.Join(", ", orcs)}");
+                Console.WriteLine(new string(matrix[i]));
             }
         }
     }
